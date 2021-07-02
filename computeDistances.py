@@ -1,23 +1,27 @@
 import numpy as np
+import argparse
 import pickle
 import networkx as nx
 import math
 from itertools import combinations, permutations
 import pandas as pd
-import sys
-from multiprocessing import Pool
-import operator as op
-from functools import reduce
+from multiprocessing import Pool, Manager
 
-# n choose 2
-def ncr(n):
-    r = 2
-    r = min(r, n-r)
-    numer = reduce(op.mul, range(n, n-r, -1), 1)
-    denom = reduce(op.mul, range(1, r+1), 1)
-    return numer // denom
 
-# get the parent number (move UP the tree one level/generation)
+'''
+Parse arguments. None are required.
+'''
+def parseArgs():
+    parser = argparse.ArgumentParser(description='Compute the semantic distance between drugs in ChEMBL using the MeSH headings of their indications.')
+    parser.add_argument('-n', '--num-cpus', help="The number of cpus to use. Default is 4.", default=4, type=int, required=False)
+    parser.add_argument('-r', '--rows', help="The number of rows of ChEMBL indications to use. Default is all.", type=int, required=False)
+    args = parser.parse_args()
+    return args
+
+
+'''
+Get the parent number (move UP the tree one level/generation).
+'''
 def up(n):
     sep = '.'
     n = n.split(sep)
@@ -28,7 +32,10 @@ def up(n):
         return n[0][0]
     return n
 
-# get indications headings
+
+'''
+Get indications headings.
+'''
 def get_headings(drug):
     if 'CHEMBL' in drug:
         indications = chembl[chembl['chembl_id'] == drug.upper()]
@@ -37,8 +44,10 @@ def get_headings(drug):
     headings = sorted(list(set(indications.mesh_heading)))
     return headings
 
-# make a graph where the nodes are MeSH headings and the directed edges form the heirarchy.
-# each node has as an attribute the list of drugs that include that node
+
+'''
+Make a graph where the nodes are MeSH headings and the directed edges form the heirarchy. Each node has as an attribute the list of drugs that include that node.
+'''
 def make_graph(drugs):
 
     node_drug_dict = {}
@@ -83,7 +92,9 @@ def make_graph(drugs):
     return G
 
 
-# compute information accretion for each node in a graph
+'''
+Compute information accretion for each node in a graph.
+'''
 def compute_ia(G):
     # annotate nodes with information accretion value from probability
     node_ia_dict = {}
@@ -118,8 +129,9 @@ def compute_ia(G):
     return G
 
 
-
-# calculate mis-information between two drug graphs
+'''
+Calculate mis-information between two drug graphs.
+'''
 def compute_mi(drug1, drug2):
     nodes = np.setdiff1d(list(drug_node_dict[drug1]), list(drug_node_dict[drug2]))
 
@@ -130,7 +142,9 @@ def compute_mi(drug1, drug2):
     return mi
 
 
-# compute remaining uncertainty between two drug graphs
+'''
+Compute remaining uncertainty between two drug graphs.
+'''
 def compute_ru(drug1, drug2):
     nodes = np.setdiff1d(list(drug_node_dict[drug2]), list(drug_node_dict[drug1]))
 
@@ -141,36 +155,84 @@ def compute_ru(drug1, drug2):
     return ru
 
 
-# calculate te semantic distance between two drugs by summing the mis-information and remaining uncertainty values
+'''
+Calculate te semantic distance (sd) between two drugs by summing the mis-information and remaining uncertainty values.
+'''
 def semantic_distance(drug1, drug2):
     sd = compute_mi(drug1, drug2) + compute_ru(drug1, drug2)
     return sd
 
 
-# calculate the semantic distance between every pairwise combination of drugs, no repeats
+'''
+Calculate the semantic distance between every pairwise combination of drugs, no repeats.
+'''
 def run_comparisons(comparisons):
 
-    # make all comparisons
-    comparisons = np.array(comparisons)
-
     # make new array and add new column for mi value
-    # zeros = np.zeros((np.shape(comparisons)[0],1))
-    # comparisons = np.column_stack((comparisons, zeros))
+    zeros = np.zeros((np.shape(comparisons)[0],1))
+    comparisons = np.column_stack((comparisons, zeros))
+
 
     for i,c in enumerate(comparisons):
         distance = semantic_distance(c[0], c[1])
+        comparisons[i][2] = distance
 
         # write to table
-        res.loc[c[0], c[1]] = distance
-        res.loc[c[1], c[0]] = distance
+        # res.loc[c[0], c[1]] = distance
+        # res.loc[c[1], c[0]] = distance
+
+    return comparisons
 
 
-# write results to table
-# this needs to be faster!
+'''
+Initializer for multiprocessing to generate global variables to use in each proces.
+'''
+def initializer():
+    global chembl
+    global mesh_headings
+    global mesh_numbers
+    # global res
+
+    # load in ChEMBL
+    chembl = pd.read_csv('data/chembl_indications.tsv', sep='\t')
+
+    # load in MeSH pickle files
+    f = open("data/mesh_headings.pkl", "rb")
+    mesh_headings = pickle.load(f)
+    f = open("data/mesh_numbers.pkl", "rb")
+    mesh_numbers= pickle.load(f)
+
+    # res = pd.DataFrame(columns=drug_list)
+    # for drug in drug_list:
+    #     res = res.append(pd.Series(name=drug))
+
+
+'''
+Main function for each process. Builds a tree for the drugs included in the comparisons, computes the information accretion (ia)
+value for each node, and then computes all comparisons.
+'''
+def main(comparisons):
+    global drug_node_dict
+    global G
+
+    drug_node_dict = {} # initialize dict key: drug value: nodes in its network
+    drugs = set([j for i in comparisons for j in i]) # extract individual drugs from comparisons to build graph
+    
+    # main process
+    G = make_graph(drugs) # build graph
+    G = compute_ia(G) # compute and add ia values
+    distances = run_comparisons(comparisons) # compute semantic distances between all drugs
+
+    return distances
+
+
+'''
+Write results to table. this needs to be faster!
+'''
 def write_results(distances):
     
-    res = pd.DataFrame(columns=drug_list)
-    for drug in drug_list:
+    res = pd.DataFrame(columns=all_drugs)
+    for drug in all_drugs:
         res = res.append(pd.Series(name=drug))
 
     for d in distances:
@@ -185,56 +247,27 @@ def write_results(distances):
 
     res.to_csv('drug_distances.csv', sep=',', index=True, na_rep=0, index_label='Drug')
 
-def initializer():
-    global chembl
-    global mesh_headings
-    global mesh_numbers
-    global res
 
-    # load in ChEMBL
-    chembl = pd.read_csv('data/chembl_indications.tsv', sep='\t')
-    drug_list = list(set(chembl['pref_name'][:int(sys.argv[2])]))
-
-    # load in MeSH pickle files
-    f = open("data/mesh_headings.pkl", "rb")
-    mesh_headings = pickle.load(f)
-    f = open("data/mesh_numbers.pkl", "rb")
-    mesh_numbers= pickle.load(f)
-
-    res = pd.DataFrame(columns=drug_list)
-    for drug in drug_list:
-        res = res.append(pd.Series(name=drug))
-
-
-def main(comparisons):
-    global drug_node_dict
-    global drugs_array
-    global G
-
-    drugs = set([j for i in comparisons for j in i])
-
-    drug_node_dict = {}
-    drugs_array = np.array(list(drugs))
-
-    G = make_graph(drugs)
-    G = compute_ia(G)
-    run_comparisons(comparisons)
-
-# main
+'''
+Main.
+'''
 if __name__ == "__main__":
 
-    # num processes
-    n = int(sys.argv[1])
+    print('setting things up...')
 
-    # num rows
-    r = int(sys.argv[2])
+    # get arguments
+    args = parseArgs() # parse arguments
+    n = args.num_cpus # number of processes/cpus to use
+    rows = args.rows # number of rows of indications to use in ChEMBL (for testing on less data)
+
+    print('loading data...')
 
     # load in ChEMBL
-    chembl = pd.read_csv('data/chembl_indications.tsv', sep='\t')
-    drug_list = list(set(chembl['pref_name'][:r])) # chembl[chembl['therapeutic_flag'] == 1]['pref_name']
+    chembl = pd.read_csv('data/chembl_indications.tsv', sep='\t') # Global.
+    all_drugs = list(set(chembl['pref_name'][:rows])) # chembl[chembl['therapeutic_flag'] == 1]['pref_name']
 
-    all_comparisons = list(combinations(drug_list,2))
-
+    # generate all drug comparisons
+    all_comparisons = list(combinations(all_drugs,2))
 
     # split drugs into nearly equal parts for every process
     l = len(all_comparisons) // n
@@ -242,14 +275,17 @@ if __name__ == "__main__":
         l += 1
     lists = [all_comparisons[i:i + l] for i in range(0, len(all_comparisons), l)]
 
+
+    print('running processes...')
+
     # compute distances across n threads
     with Pool(n, initializer, ()) as p:
-        p.map(main, lists)
+        distances = p.map(main, lists)
 
+    # write results to csv
+    # res.to_csv('drug_distances.csv', sep=',', index=True, na_rep=0, index_label='Drug')
 
-    res.to_csv('drug_distances.csv', sep=',', index=True, na_rep=0, index_label='Drug')
+    distances = [j for i in distances for j in i]
 
-    # distances = [j for i in distances for j in i]
-
-    # print('writing results')
-    # write_results(distances)
+    print('writing results...')
+    write_results(distances)
