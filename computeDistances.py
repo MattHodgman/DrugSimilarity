@@ -3,7 +3,7 @@ import argparse
 import pickle
 import networkx as nx
 import math
-from itertools import combinations, permutations
+from itertools import combinations
 import pandas as pd
 from multiprocessing import Pool
 
