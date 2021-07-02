@@ -5,7 +5,7 @@ import networkx as nx
 import math
 from itertools import combinations, permutations
 import pandas as pd
-from multiprocessing import Pool, Manager
+from multiprocessing import Pool
 
 
 '''
