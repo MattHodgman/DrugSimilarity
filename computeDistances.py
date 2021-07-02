@@ -192,13 +192,13 @@ def initializer():
     global res
 
     # load in ChEMBL
-    chembl = pd.read_csv('chembl_indications.tsv', sep='\t')
+    chembl = pd.read_csv('data/chembl_indications.tsv', sep='\t')
     drug_list = list(set(chembl['pref_name'][:int(sys.argv[2])]))
 
     # load in MeSH pickle files
-    f = open("mesh_headings.pkl", "rb")
+    f = open("data/mesh_headings.pkl", "rb")
     mesh_headings = pickle.load(f)
-    f = open("mesh_numbers.pkl", "rb")
+    f = open("data/mesh_numbers.pkl", "rb")
     mesh_numbers= pickle.load(f)
 
     res = pd.DataFrame(columns=drug_list)
@@ -230,7 +230,7 @@ if __name__ == "__main__":
     r = int(sys.argv[2])
 
     # load in ChEMBL
-    chembl = pd.read_csv('chembl_indications.tsv', sep='\t')
+    chembl = pd.read_csv('data/chembl_indications.tsv', sep='\t')
     drug_list = list(set(chembl['pref_name'][:r])) # chembl[chembl['therapeutic_flag'] == 1]['pref_name']
 
     all_comparisons = list(combinations(drug_list,2))
