@@ -253,17 +253,21 @@ Main.
 '''
 if __name__ == "__main__":
 
-    print('setting things up...')
-
     # get arguments
     args = parseArgs() # parse arguments
     n = args.num_cpus # number of processes/cpus to use
-    rows = args.rows # number of rows of indications to use in ChEMBL (for testing on less data)
 
     print('loading data...')
 
     # load in ChEMBL
-    chembl = pd.read_csv('data/chembl_indications.tsv', sep='\t') # Global.
+    chembl = pd.read_csv('data/chembl_indications.tsv', sep='\t')
+
+    # number of rows of indications to use in ChEMBL (for testing on less data)
+    if args.rows is None:
+        rows = len(chembl)
+    else:
+        rows = args.rows 
+
     all_drugs = list(set(chembl['pref_name'][:rows])) # chembl[chembl['therapeutic_flag'] == 1]['pref_name']
 
     # generate all drug comparisons
