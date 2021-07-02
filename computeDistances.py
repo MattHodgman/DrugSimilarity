@@ -183,7 +183,7 @@ def write_results(distances):
         res.loc[drug1, drug2] = distance
         res.loc[drug2, drug1] = distance
 
-    res.to_csv('drug_distances6.csv', sep=',', index=True, na_rep=0, index_label='Drug')
+    res.to_csv('drug_distances.csv', sep=',', index=True, na_rep=0, index_label='Drug')
 
 def initializer():
     global chembl
@@ -192,7 +192,7 @@ def initializer():
     global res
 
     # load in ChEMBL
-    chembl = pd.read_csv('chembl/chembl_indications.tsv', sep='\t')
+    chembl = pd.read_csv('chembl_indications.tsv', sep='\t')
     drug_list = list(set(chembl['pref_name'][:int(sys.argv[2])]))
 
     # load in MeSH pickle files
@@ -230,7 +230,7 @@ if __name__ == "__main__":
     r = int(sys.argv[2])
 
     # load in ChEMBL
-    chembl = pd.read_csv('chembl/chembl_indications.tsv', sep='\t')
+    chembl = pd.read_csv('chembl_indications.tsv', sep='\t')
     drug_list = list(set(chembl['pref_name'][:r])) # chembl[chembl['therapeutic_flag'] == 1]['pref_name']
 
     all_comparisons = list(combinations(drug_list,2))
@@ -247,7 +247,7 @@ if __name__ == "__main__":
         p.map(main, lists)
 
 
-    res.to_csv('drug_distances6.csv', sep=',', index=True, na_rep=0, index_label='Drug')
+    res.to_csv('drug_distances.csv', sep=',', index=True, na_rep=0, index_label='Drug')
 
     # distances = [j for i in distances for j in i]
 
