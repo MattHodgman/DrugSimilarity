@@ -141,8 +141,8 @@ if __name__ == "__main__":
 
     print('writing output to pickle files...')
     # save graph to pickle file
-    nx.write_gpickle(G, "data/chembl.gpickle")
+    nx.write_gpickle(G, "data/chembl.gpkl")
 
     # save drug_node_dict to pickle
-    dict_file = open ('data/drug_node_dict.pickle', 'wb')
+    dict_file = open ('data/drug_node_dict.pkl', 'wb')
     pickle.dump(drug_node_dict, dict_file)
