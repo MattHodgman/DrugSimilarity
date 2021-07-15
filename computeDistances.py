@@ -83,7 +83,8 @@ def initializer():
     global G
 
     # load dict -> key: drug, value: nodes in its network
-    drug_node_dict = pickle.load(args.drug_node_dict)
+    f = open(args.drug_node_dict, 'rb')
+    drug_node_dict = pickle.load(f)
 
     # load in all drugs
     f = open(args.all_drugs, 'r')
