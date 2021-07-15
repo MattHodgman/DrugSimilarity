@@ -116,10 +116,13 @@ Write results to table.
 def write_results(distances):
     
     # initialize df
+    print(f'initializing df with {len(all_drugs)} columns')
     res = pd.DataFrame(columns=all_drugs)
+    print(f'adding {len(drugs)} rows')
     for drug in drugs:
         res = res.append(pd.Series(name=drug))
 
+    print(f'adding {len(distances)} distances')
     for d in distances:
         # get values
         drug1 = d[0]
