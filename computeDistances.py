@@ -127,6 +127,8 @@ def main(drugs):
     distances = run_comparisons(comparisons) # compute semantic distances between all drugs
     '''
 
+    print(len(all_drugs))
+
     results = run_comparisons_new(drugs, all_drugs)
 
     return results
