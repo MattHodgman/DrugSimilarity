@@ -1,3 +1,3 @@
-bash makeGraph.py
-bash control.sh
-bash append.sh
+python3 makeGraph.py
+bash control.sh 10
+bash append.sh output
