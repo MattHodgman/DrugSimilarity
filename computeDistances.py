@@ -62,24 +62,7 @@ def semantic_distance(drug1, drug2):
 '''
 Calculate the semantic distance between every pairwise combination of drugs, no repeats.
 '''
-def run_comparisons(comparisons):
-
-    # make new array and add new column for mi value
-    zeros = np.zeros((np.shape(comparisons)[0],1))
-    comparisons = np.column_stack((comparisons, zeros))
-
-    # run comparisons
-    for i,c in enumerate(comparisons):
-        distance = semantic_distance(c[0], c[1]) # compute distance
-        comparisons[i][2] = distance # add to data
-
-    return comparisons
-
-
-'''
-NEW
-'''
-def run_comparisons_new(drugs, all_drugs):
+def run_comparisons(drugs, all_drugs):
 
     results = []
     for drug1 in drugs:
@@ -116,18 +99,8 @@ def initializer():
 Main function for each process. Computes all comparisons.
 '''
 def main(drugs):
-    
-    # generate comparisons (list of tuples?)
-    '''
-    comparisons = []
-    for drug1 in drugs:
-        for drug2 in all_drugs:
-            comparisons.append((drug1, drug2))
 
-    distances = run_comparisons(comparisons) # compute semantic distances between all drugs
-    '''
-
-    results = run_comparisons_new(drugs, all_drugs)
+    results = run_comparisons(drugs, all_drugs)
 
     return results
 
@@ -160,12 +133,14 @@ def write_results(distances):
     
 
 '''
-NEW
+Write results to table.
 '''
 def write_results_new(distances):
     
     with open(f'{args.output}/drug_distances_{args.id}.tsv', 'w', newline='') as f:
         writer = csv.writer(f, delimiter='\t')
+        #if args.id == 'aa':
+        writer.writerow(all_drugs)
         writer.writerows(distances)
 
     
