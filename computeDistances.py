@@ -108,7 +108,7 @@ def main(drugs):
 
 
 '''
-Write results to table. this needs to be faster!
+Write results to table.
 '''
 def write_results(distances):
     
@@ -127,7 +127,7 @@ def write_results(distances):
         res.loc[drug1, drug2] = distance
         res.loc[drug2, drug1] = distance
 
-    res.to_csv('drug_distances.csv', sep=',', index=True, na_rep=0, index_label='Drug')
+    res.to_csv('drug_distances.tsv', sep='\t', index=True, na_rep=0, index_label='Drug')
     
 
 '''
