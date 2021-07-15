@@ -88,7 +88,7 @@ def initializer():
 
     # load in all drugs
     f = open(args.all_drugs, 'r')
-    all_drugs = f.readlines()
+    all_drugs = f.readlines().splitlines() 
 
     # read in graph
     G = nx.read_gpickle(args.graph)
@@ -152,7 +152,7 @@ if __name__ == "__main__":
 
     # load in small drug list
     f = open(args.drugs, 'r')
-    drugs = f.readlines()
+    drugs = f.readlines().splitlines() 
 
     # divide drugs for processes
     num_drugs = math.ceil(len(drugs) / n)
