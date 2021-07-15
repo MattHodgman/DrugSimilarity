@@ -129,7 +129,11 @@ def write_results(distances):
         res.loc[drug1, drug2] = distance
         res.loc[drug2, drug1] = distance
 
-    res.to_csv(f'{args.output}/drug_distances_{args.id}.tsv', sep='\t', index=True, na_rep=0, index_label='Drug')
+    # write to tsv. exclude header if not first child job so they can be easily merged later
+    if args.id != 'aa':
+        res.to_csv(f'{args.output}/drug_distances_{args.id}.tsv', sep='\t', index=True, na_rep=0, index_label='Drug', header=False)
+    else:
+        res.to_csv(f'{args.output}/drug_distances_{args.id}.tsv', sep='\t', index=True, na_rep=0, index_label='Drug')
     
 
 '''
