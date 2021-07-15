@@ -129,7 +129,7 @@ def main(drugs):
 
     results = run_comparisons_new(drugs, all_drugs)
 
-    return distances
+    return results
 
 
 '''
