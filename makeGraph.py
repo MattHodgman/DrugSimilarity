@@ -118,6 +118,8 @@ Main.
 '''
 if __name__ == "__main__":
 
+    print('loading data...')
+
     # load in MeSH pickle files
     f = open("data/mesh_headings.pkl", "rb")
     mesh_headings = pickle.load(f)
@@ -131,9 +133,13 @@ if __name__ == "__main__":
 
     drug_node_dict = {}
 
+    print('making graph...')
     G = make_graph(drugs) # build graph
+
+    print('computing information accretion...')
     G = compute_ia(G) # compute and add ia values
 
+    print('writing output to pickle files...')
     # save graph to pickle file
     nx.write_gpickle(G, "data/chembl.gpickle")
 
