@@ -1,0 +1,22 @@
+workflow
+
+SCRIPT 1 (python)
+    build chembl DAG and write to pickle file
+
+SCRIPT 2 (bash)
+    get num jobs
+    write sorted list of drugs to file
+    divide list of drugs by that many and write to temp files
+    run each job and pass list of drugs to each
+
+SCRIPT 3 (python)
+    multiprocess x20
+    split number of drugs by number of processes
+    in each process
+        load in DAG
+        load in full drug list
+        get comparisons
+        run comparisons
+        write results
+
+SCRIPT 4 runs 1-3 :)
