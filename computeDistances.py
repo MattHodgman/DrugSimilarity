@@ -164,7 +164,7 @@ NEW
 '''
 def write_results_new(distances):
     
-    with open(f'{args.output}/drug_distances_{args.id}.tsv', 'w', newline='', sep='\t') as f:
+    with open(f'{args.output}/drug_distances_{args.id}.tsv', 'w', newline='', delimeter='\t') as f:
         writer = csv.writer(f)
         writer.writerows(distances)
 
