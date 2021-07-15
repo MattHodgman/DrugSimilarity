@@ -1,4 +1,6 @@
+from os import sep
 import numpy as np
+import csv
 import argparse
 import pickle
 import networkx as nx
@@ -72,6 +74,22 @@ def run_comparisons(comparisons):
         comparisons[i][2] = distance # add to data
 
     return comparisons
+
+
+'''
+NEW
+'''
+def run_comparisons_new(drugs, all_drugs):
+
+    results = []
+    for drug1 in drugs:
+        distances = []
+        for drug2 in all_drugs:
+            distance = semantic_distance(drug1, drug2) # compute distance
+        distances.append(distance)
+        results.append(distances)
+
+    return results
     
 
 '''
@@ -100,12 +118,16 @@ Main function for each process. Computes all comparisons.
 def main(drugs):
     
     # generate comparisons (list of tuples?)
+    '''
     comparisons = []
     for drug1 in drugs:
         for drug2 in all_drugs:
             comparisons.append((drug1, drug2))
 
     distances = run_comparisons(comparisons) # compute semantic distances between all drugs
+    '''
+
+    results = run_comparisons_new(drugs, all_drugs)
 
     return distances
 
@@ -116,13 +138,10 @@ Write results to table.
 def write_results(distances):
     
     # initialize df
-    print(f'initializing df with {len(all_drugs)} columns')
     res = pd.DataFrame(columns=all_drugs)
-    print(f'adding {len(drugs)} rows')
     for drug in drugs:
         res = res.append(pd.Series(name=drug))
 
-    print(f'adding {len(distances)} distances')
     for d in distances:
         # get values
         drug1 = d[0]
@@ -138,6 +157,17 @@ def write_results(distances):
         res.to_csv(f'{args.output}/drug_distances_{args.id}.tsv', sep='\t', index=True, na_rep=0, index_label='Drug', header=False)
     else:
         res.to_csv(f'{args.output}/drug_distances_{args.id}.tsv', sep='\t', index=True, na_rep=0, index_label='Drug')
+    
+
+'''
+NEW
+'''
+def write_results_new(distances):
+    
+    with open(f'{args.output}/drug_distances_{args.id}.tsv', 'w', newline='', sep='\t') as f:
+        writer = csv.writer(f)
+        writer.writerows(distances)
+
     
 
 '''
@@ -175,4 +205,4 @@ if __name__ == "__main__":
     distances = [j for i in distances for j in i]
 
     print('writing results...')
-    write_results(distances)
+    write_results_new(distances)
