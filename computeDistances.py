@@ -167,7 +167,21 @@ def semantic_distance(drug1, drug2):
 Calculate the semantic distance between every pairwise combination of drugs, no repeats.
 '''
 def run_comparisons(comparisons):
+    '''
+    
+    # 'comparisons' is a list of tuples. I'd have to make a new list of tuples to add the distances to 
+    # each comparison bc tuple sare immutable. But apparently inserting into lists is faster. How does this compare to numpy arrays?
 
+    distances = [] # init distances
+
+    for c in comparisons:
+        distance = semantic_distance(c[0], c[1]) # calculate distance between drugs
+        distances.append((c[0], c[1], distance)) # insert info as tuple into list
+
+    return distances
+    '''
+
+    
     # make new array and add new column for mi value
     zeros = np.zeros((np.shape(comparisons)[0],1))
     comparisons = np.column_stack((comparisons, zeros))
@@ -182,6 +196,10 @@ def run_comparisons(comparisons):
         # res.loc[c[1], c[0]] = distance
 
     return comparisons
+    
+
+    
+    
 
 
 '''
@@ -230,7 +248,20 @@ def main(comparisons):
 Write results to table. this needs to be faster!
 '''
 def write_results(distances):
-    
+
+    '''
+    # make dataframe from data (list of tuples?) ???
+
+
+    # copy upper triangle to lower
+    matrix = np.matrix
+    i_lower = np.tril_indices(n, -1)
+    matrix[i_lower] = matrix.T[i_lower]  # make the matrix symmetric
+
+    # OR DO THIS
+    X = X + X.T - np.diag(np.diag(X))
+
+    '''
     res = pd.DataFrame(columns=all_drugs)
     for drug in all_drugs:
         res = res.append(pd.Series(name=drug))
@@ -246,6 +277,8 @@ def write_results(distances):
         res.loc[drug2, drug1] = distance
 
     res.to_csv('drug_distances.csv', sep=',', index=True, na_rep=0, index_label='Drug')
+    
+    
 
 
 '''
@@ -270,6 +303,39 @@ if __name__ == "__main__":
 
     all_drugs = list(set(chembl['pref_name'][:rows])) # chembl[chembl['therapeutic_flag'] == 1]['pref_name']
 
+    '''
+
+    divide list of drugs between all processes so that each process has the same number of comparisons
+        - get total number of comparisons ( X = n choose 2 (but without repeats right?)) 
+        - find the number of comparisons needed for each process ( X / num processes )
+        - {number of comparisons for drug A} = {the number of drugs} - {the index of A in sorted drug list} - 1 (the -1 is because we don't need to compare it to itself)
+        - while {number of comparisons} < the needed amount, get the next drugs comparisons
+        - repeat this for every process, starting at the next unassigned drug
+    
+    pass each process its list of drugs
+
+    get comparisons (tricky)
+    - for each drug
+        - get drug's index from sorted list
+        - the drugs to compare to this drug are all those with an index > the index of the current drug
+        - make comparisons
+
+    compute distance for each comparison
+
+    write output (the tricky part)
+    - for each drug 
+        - fill the first X columns with zeros ( X = the index of the drug in the sorted list + 1)
+        - then fill in the remaining columns with the computed distances
+
+
+    
+    This will make writing the output faster but will have more overhead. 
+    Also, once I append all the output files together, the bottom triangle will be all zeros, which I dont want.
+    I could try to load the csv into pandas or numpy and fill it in, not sure how long that would take.
+
+    
+    '''
+
     # generate all drug comparisons
     all_comparisons = list(combinations(all_drugs,2))
 
@@ -278,7 +344,6 @@ if __name__ == "__main__":
     if len(all_comparisons) % n != 0:
         l += 1
     lists = [all_comparisons[i:i + l] for i in range(0, len(all_comparisons), l)]
-
 
     print('running processes...')
 
