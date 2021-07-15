@@ -135,8 +135,8 @@ if __name__ == "__main__":
     G = compute_ia(G) # compute and add ia values
 
     # save graph to pickle file
-    nx.write_gpickle(G, "chembl.gpickle")
+    nx.write_gpickle(G, "data/chembl.gpickle")
 
     # save drug_node_dict to pickle
-    dict_file = open ('drug_node_dict.pickle', 'wb')
+    dict_file = open ('data/drug_node_dict.pickle', 'wb')
     pickle.dump(drug_node_dict, dict_file)

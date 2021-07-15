@@ -17,7 +17,8 @@ def parseArgs():
     parser.add_argument('-d', '--drugs', help='A file containing a list of drugs for computation', type=str, required=True)
     parser.add_argument('-a', '--all-drugs', help='A file containing a list of all drugs in ChEMBL.', type=str, required=True)
     parser.add_argument('-p', '--drug-node-dict', help='A pickle file containing drug_node_dict.', type=str, required=True)
-    parser.add_argument('-i', '--id', help='A unique id to use for this scripts output file', type=int, required=True)
+    parser.add_argument('-i', '--id', help='A unique id to use for this scripts output file.', type=str, required=True)
+    parser.add_argument('-o', '--output', help='Output directory.', type=str, required=True)
     args = parser.parse_args()
     return args
 
@@ -128,7 +129,7 @@ def write_results(distances):
         res.loc[drug1, drug2] = distance
         res.loc[drug2, drug1] = distance
 
-    res.to_csv(f'drug_distances_{args.id}.tsv', sep='\t', index=True, na_rep=0, index_label='Drug')
+    res.to_csv(f'{args.output}/drug_distances_{args.id}.tsv', sep='\t', index=True, na_rep=0, index_label='Drug')
     
 
 '''
