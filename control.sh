@@ -1,7 +1,7 @@
 num_jobs=$1 # the number of jobs to submit
 
 # make drug list
-cut -d$'\t' -f2 data/chembl_indications.tsv | sort | uniq > data/drugs
+tail -n+2 data/chembl_indications.tsv | cut -d$'\t' -f2 | sort | uniq > data/drugs
 
 # split drug list into a file for each job
 split -n l/${num_jobs} data/drugs 'data/drugs_'
