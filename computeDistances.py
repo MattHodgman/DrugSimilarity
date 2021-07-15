@@ -154,6 +154,10 @@ if __name__ == "__main__":
     f = open(args.drugs, 'r')
     drugs = [line.rstrip() for line in f]
 
+    # load in all drugs
+    f = open(args.all_drugs, 'r')
+    all_drugs = [line.rstrip() for line in f]
+
     # divide drugs for processes
     num_drugs = math.ceil(len(drugs) / n)
     lists = [drugs[i:i + num_drugs] for i in range(0, len(drugs), num_drugs)]
