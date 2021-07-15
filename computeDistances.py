@@ -108,40 +108,13 @@ def main(drugs):
 '''
 Write results to table.
 '''
-def write_results(distances):
-    
-    # initialize df
-    res = pd.DataFrame(columns=all_drugs)
-    for drug in drugs:
-        res = res.append(pd.Series(name=drug))
-
-    for d in distances:
-        # get values
-        drug1 = d[0]
-        drug2 = d[1]
-        distance = d[2]
-
-        # write to table
-        res.loc[drug1, drug2] = distance
-        res.loc[drug2, drug1] = distance
-
-    # write to tsv. exclude header if not first child job so they can be easily merged later
-    if args.id != 'aa':
-        res.to_csv(f'{args.output}/drug_distances_{args.id}.tsv', sep='\t', index=True, na_rep=0, index_label='Drug', header=False)
-    else:
-        res.to_csv(f'{args.output}/drug_distances_{args.id}.tsv', sep='\t', index=True, na_rep=0, index_label='Drug')
-    
-
-'''
-Write results to table.
-'''
 def write_results_new(distances):
     
     with open(f'{args.output}/drug_distances_{args.id}.tsv', 'w', newline='') as f:
         writer = csv.writer(f, delimiter='\t')
-        #if args.id == 'aa':
-        all_drugs.insert(0,'Drug')
-        writer.writerow(all_drugs)
+        if args.id == 'aa':
+            all_drugs.insert(0,'Drug')
+            writer.writerow(all_drugs)
         writer.writerows(distances)
 
     
