@@ -83,7 +83,7 @@ def run_comparisons_new(drugs, all_drugs):
 
     results = []
     for drug1 in drugs:
-        distances = []
+        distances = [drug1]
         for drug2 in all_drugs:
             distance = semantic_distance(drug1, drug2) # compute distance
         distances.append(distance)
@@ -169,7 +169,6 @@ def write_results_new(distances):
         writer.writerows(distances)
 
     
-
 '''
 Main.
 '''
