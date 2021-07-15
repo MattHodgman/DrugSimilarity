@@ -10,6 +10,9 @@
 # args
 drugs_list=$1 # the list of drugs to be used in this child process
 
+# get id
+id=$(echo ${drugs_list} | grep -oP '(?<=_)\w+')
+
 # source bashrc to activate conda in shell
 source ~/.bashrc
 
@@ -17,7 +20,7 @@ source ~/.bashrc
 conda activate py38env
 
 # Run computeDistances.py using 20 processes
-python3 computeDistances.py -n 20 -d ${d} -a drugs -g data/chembl.gpickle -p data/drug_node_dict.pickle
+python3 computeDistances.py -n 20 -d ${drugs_list} -a drugs -g data/chembl.gpickle -p data/drug_node_dict.pickle -i ${id}
 
 # close conda env
 conda deactivate
