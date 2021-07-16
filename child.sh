@@ -21,7 +21,7 @@ source ~/.bashrc
 conda activate py38env
 
 # Run computeDistances.py using 20 processes
-python3 computeDistances.py -n 20 -d data/$drugs_list -a data/drugs -g data/chembl.gpkl -p data/drug_node_dict.pkl -i $id -o $out
+python3 computeDistances.py -n 20 -d $drugs_list -a data/drugs -g data/chembl.gpkl -p data/drug_node_dict.pkl -i $id -o $out
 
 # close conda env
 conda deactivate
