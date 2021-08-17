@@ -1,5 +1,5 @@
 # DrugSimilarity
-A python script for comparing drugs based on the semantic distance between the [MeSH](https://www.nlm.nih.gov/mesh/meshhome.html) headings of their [ChEMBL](https://www.ebi.ac.uk/chembl/) indications.
+A python script for comparing drugs based on the semantic distance between the [MeSH](https://www.nlm.nih.gov/mesh/meshhome.html) headings of their [ChEMBL](https://www.ebi.ac.uk/chembl/) indications. Partial implementation of [this algorithm](https://academic.oup.com/bioinformatics/article/29/13/i53/195366).
 
 
 ### Usage
