@@ -6,6 +6,7 @@ A python script for comparing drugs based on the semantic distance between the [
 ```
 python3 computeDistances.py -n 10
 ```
+When this takes too long, run the commands in `pipeline.sh` that split the work across different SLURM jobs (`child.sh`) and then append the results.
 
 
 ### Parameter Reference
