@@ -133,3 +133,6 @@ drug_distances.csv
 
 # final output
 all_drug_distances.tsv
+
+# misc
+.DS_Store
