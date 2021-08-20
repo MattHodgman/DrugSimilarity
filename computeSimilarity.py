@@ -28,19 +28,19 @@ def parseArgs():
 Get a drug's indications
 '''
 def getIndications(drug):
-    indications = chembl[chembl['pref_name'] == drug]['mesh_heading'].tolist()
+    indications = set(chembl[chembl['pref_name'] == drug]['mesh_heading'].tolist())
     return indications
 
 
 '''
 Calculate the overlap coefficient for two drugs.
 '''
-def overlap(drug1, drug2):
+def computeOverlap(drug1, drug2):
     # get the indications for each drug
     indications1 = getIndications(drug1)
     indications2 = getIndications(drug2)
 
-    intersection = len(list(set(indications1) & set(indications2))) # get the size of the intersection of both sets
+    intersection = len(list(indications1 & indications2)) # get the size of the intersection of both sets
     min_size = min(len(indications1),len(indications2)) # get the size of the smaller set
     overlap = intersection / min_size # compute overlap 
 
@@ -56,7 +56,7 @@ def run_comparisons(drugs, all_drugs):
     for drug1 in drugs:
         overlaps = [drug1]
         for drug2 in all_drugs:
-            overlap = overlap(drug1, drug2) # compute overlap
+            overlap = computeOverlap(drug1, drug2) # compute overlap
             overlaps.append(overlap)
         results.append(overlaps)
 
